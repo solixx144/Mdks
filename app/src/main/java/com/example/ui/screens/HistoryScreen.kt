@@ -22,6 +22,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -30,6 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -52,6 +56,7 @@ fun HistoryScreen(
     var selectedFilterTab by remember { mutableStateOf(0) } // 0 = Single Scans, 1 = Comparisons
     var selectedScanForDetail by remember { mutableStateOf<FaceScanEntity?>(null) }
     var selectedCompareForDetail by remember { mutableStateOf<FaceComparisonEntity?>(null) }
+    var showGuide by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -61,25 +66,81 @@ fun HistoryScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // High-Tech Sub-Header
-        Text(
-            text = "FORENSIC ARCHIVES",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold,
-                color = NeonCyan,
-                letterSpacing = 2.sp
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = "DECRYPTED COGNITIVE BIOMETRIC LOGS",
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontFamily = FontFamily.Monospace,
-                color = CyberTextSecondary,
-                letterSpacing = 1.sp
-            ),
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "FORENSIC ARCHIVES",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        color = NeonCyan,
+                        letterSpacing = 1.sp
+                    )
+                )
+                Text(
+                    text = "DECRYPTED COGNITIVE BIOMETRIC LOGS",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontFamily = FontFamily.Monospace,
+                        color = CyberTextSecondary,
+                        letterSpacing = 1.sp
+                    ),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            
+            IconButton(
+                onClick = { showGuide = !showGuide },
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(CyberCardBg, CircleShape)
+                    .border(1.dp, if (showGuide) NeonCyan else NeonBlue.copy(alpha = 0.5f), CircleShape)
+                    .testTag("history_guide_toggle")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Show Help Guide",
+                    tint = if (showGuide) NeonCyan else NeonBlue
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AnimatedVisibility(visible = showGuide) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                    .border(1.dp, NeonBlue.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
+                colors = CardDefaults.cardColors(containerColor = CyberDarkSurface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "ARCHIVE USER MANUAL",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            color = NeonCyan
+                        ),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = "1. TAP between the tabs 'IDENTIFIED MATCHES' and 'COMPARISONS' to switch lists.\n" +
+                               "2. TAP any item on the grid to open a full biometric readout detailed dialog report.\n" +
+                               "3. TAP the trash icon on any record to delete it permanently, or tap 'PURGE LOGS' to clear the current list.",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = FontFamily.Monospace,
+                            color = CyberTextPrimary,
+                            lineHeight = 18.sp
+                        )
+                    )
+                }
+            }
+        }
 
         // Custom High-Tech Tab Selector
         Row(
@@ -573,21 +634,77 @@ fun ScanDetailDialog(
                     Text(
                         text = "IDENTIFIED REGISTRY TARGETS",
                         style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, color = NeonCyan),
-                        modifier = Modifier.padding(bottom = 6.dp)
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
+                    val context = LocalContext.current
                     matches.forEach { match ->
                         val parts = match.split("|")
                         if (parts.size >= 2) {
+                            val title = parts[0]
+                            val url = parts[1]
+                            
+                            // Determine color scheme based on title
+                            val (brandColor, brandBg) = when {
+                                title.lowercase().contains("linkedin") -> Pair(Color(0xFF0077B5), Color(0xFF0077B5).copy(alpha = 0.15f))
+                                title.lowercase().contains("twitter") || title.lowercase().contains("x.com") || title.lowercase().contains("x social") -> Pair(Color(0xFF1DA1F2), Color(0xFF1DA1F2).copy(alpha = 0.15f))
+                                title.lowercase().contains("portfolio") || title.lowercase().contains("unsplash") -> Pair(CyberOrange, CyberOrange.copy(alpha = 0.15f))
+                                title.lowercase().contains("github") -> Pair(Color(0xFF24292F), Color(0xFF24292F).copy(alpha = 0.15f))
+                                else -> Pair(NeonCyan, NeonCyan.copy(alpha = 0.15f))
+                            }
+
                             Row(
-                                modifier = Modifier.padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .background(CyberDarkSurface, RoundedCornerShape(8.dp))
+                                    .border(0.5.dp, brandColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                            context.startActivity(intent)
+                                        } catch (e: Exception) {
+                                            // Handle error gracefully
+                                        }
+                                    }
+                                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Icon(imageVector = Icons.Default.Link, contentDescription = "link", tint = NeonCyan, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = parts[0],
-                                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace, color = CyberTextPrimary)
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                    Icon(
+                                        imageVector = Icons.Default.Link, 
+                                        contentDescription = "link", 
+                                        tint = brandColor, 
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontFamily = FontFamily.Monospace, 
+                                            color = CyberTextPrimary,
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .background(brandBg, RoundedCornerShape(4.dp))
+                                        .border(0.5.dp, brandColor.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "VISIT",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontFamily = FontFamily.Monospace,
+                                            color = brandColor,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 8.sp
+                                        )
+                                    )
+                                }
                             }
                         }
                     }

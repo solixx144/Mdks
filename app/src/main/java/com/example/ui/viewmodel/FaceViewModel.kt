@@ -89,6 +89,71 @@ class FaceViewModel(
         _scanState.value = ScanUiState.Idle
     }
 
+    // --- Batch Face Scan State ---
+    private val _batchBitmaps = MutableStateFlow<List<Bitmap>>(emptyList())
+    val batchBitmaps = _batchBitmaps.asStateFlow()
+
+    private val _batchState = MutableStateFlow<BatchScanUiState>(BatchScanUiState.Idle)
+    val batchState = _batchState.asStateFlow()
+
+    fun addBatchBitmap(bitmap: Bitmap) {
+        _batchBitmaps.value = _batchBitmaps.value + bitmap
+        _batchState.value = BatchScanUiState.Idle
+    }
+
+    fun removeBatchBitmap(index: Int) {
+        val current = _batchBitmaps.value.toMutableList()
+        if (index in current.indices) {
+            current.removeAt(index)
+            _batchBitmaps.value = current
+        }
+        _batchState.value = BatchScanUiState.Idle
+    }
+
+    fun clearBatchBitmaps() {
+        _batchBitmaps.value = emptyList()
+        _batchState.value = BatchScanUiState.Idle
+    }
+
+    fun scanBatch() {
+        val bitmaps = _batchBitmaps.value
+        if (bitmaps.isEmpty()) return
+        _batchState.value = BatchScanUiState.Processing(0, bitmaps.size)
+
+        viewModelScope.launch {
+            try {
+                val results = mutableListOf<BatchScanItemResult>()
+                for ((index, bitmap) in bitmaps.withIndex()) {
+                    val result = GeminiClient.analyzeFace(bitmap)
+                    val imagePath = saveBitmapToCache(bitmap)
+                    val entity = FaceScanEntity(
+                        imagePath = imagePath,
+                        celebrityName = result.celebrityName,
+                        celebritySimilarity = result.celebritySimilarity,
+                        age = result.age,
+                        gender = result.gender,
+                        emotion = result.emotion,
+                        symmetry = result.symmetry,
+                        analysis = result.analysis,
+                        webMatches = result.webMatches.joinToString(";") { "${it.title}|${it.url}" }
+                    )
+                    repository.insertScan(entity)
+
+                    results.add(BatchScanItemResult(bitmap, result))
+                    _batchState.value = BatchScanUiState.Processing(index + 1, bitmaps.size)
+                }
+                _batchState.value = BatchScanUiState.Success(results)
+            } catch (e: Exception) {
+                _batchState.value = BatchScanUiState.Error(e.message ?: "Batch analysis failed")
+            }
+        }
+    }
+
+    fun resetBatch() {
+        _batchBitmaps.value = emptyList()
+        _batchState.value = BatchScanUiState.Idle
+    }
+
     // --- Face Comparison State ---
     private val _compareBitmap1 = MutableStateFlow<Bitmap?>(null)
     val compareBitmap1 = _compareBitmap1.asStateFlow()
@@ -228,6 +293,18 @@ sealed interface CompareUiState {
     data class Success(val result: FaceComparisonResult) : CompareUiState
     data class Error(val message: String) : CompareUiState
 }
+
+sealed interface BatchScanUiState {
+    object Idle : BatchScanUiState
+    data class Processing(val progress: Int, val total: Int) : BatchScanUiState
+    data class Success(val results: List<BatchScanItemResult>) : BatchScanUiState
+    data class Error(val message: String) : BatchScanUiState
+}
+
+data class BatchScanItemResult(
+    val bitmap: Bitmap,
+    val result: FaceAnalysisResult
+)
 
 class FaceViewModelFactory(
     private val application: Application,

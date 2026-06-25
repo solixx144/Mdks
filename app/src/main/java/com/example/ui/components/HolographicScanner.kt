@@ -55,106 +55,138 @@ fun HolographicScanner(
         // Underlay the image picker or camera preview
         content()
 
-        if (isScanning) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val w = size.width
-                val h = size.height
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
 
-                // 1. Draw High-Tech Grid Overlay
-                val gridRows = 8
-                val gridCols = 8
-                val rowStep = h / gridRows
-                val colStep = w / gridCols
+            // 1. Draw High-Tech Grid Overlay
+            val gridRows = 8
+            val gridCols = 8
+            val rowStep = h / gridRows
+            val colStep = w / gridCols
+            val gridAlpha = if (isScanning) pulseAlpha * 0.35f else 0.12f
 
-                for (i in 1 until gridRows) {
-                    val y = i * rowStep
-                    drawLine(
-                        color = NeonCyan.copy(alpha = pulseAlpha * 0.3f),
-                        start = Offset(0f, y),
-                        end = Offset(w, y),
-                        strokeWidth = 1f
-                    )
-                }
-                for (j in 1 until gridCols) {
-                    val x = j * colStep
-                    drawLine(
-                        color = NeonCyan.copy(alpha = pulseAlpha * 0.3f),
-                        start = Offset(x, 0f),
-                        end = Offset(x, h),
-                        strokeWidth = 1f
-                    )
-                }
+            for (i in 1 until gridRows) {
+                val y = i * rowStep
+                drawLine(
+                    color = NeonCyan.copy(alpha = gridAlpha),
+                    start = Offset(0f, y),
+                    end = Offset(w, y),
+                    strokeWidth = 1f
+                )
+            }
+            for (j in 1 until gridCols) {
+                val x = j * colStep
+                drawLine(
+                    color = NeonCyan.copy(alpha = gridAlpha),
+                    start = Offset(x, 0f),
+                    end = Offset(x, h),
+                    strokeWidth = 1f
+                )
+            }
 
-                // 2. Draw Corner Accents (Hologram Look)
-                val cornerLength = size.minDimension * 0.15f
-                val strokeW = 6f
-                val padding = 15f
+            // 2. Draw Corner Accents (Hologram Look)
+            val cornerLength = size.minDimension * 0.15f
+            val strokeW = 6f
+            val padding = 15f
+            val cornerColor = if (isScanning) NeonCyan else NeonCyan.copy(alpha = 0.5f)
 
-                // Top Left
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(padding, padding),
-                    end = Offset(padding + cornerLength, padding),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(padding, padding),
-                    end = Offset(padding, padding + cornerLength),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
+            // Top Left
+            drawLine(
+                color = cornerColor,
+                start = Offset(padding, padding),
+                end = Offset(padding + cornerLength, padding),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
+            drawLine(
+                color = cornerColor,
+                start = Offset(padding, padding),
+                end = Offset(padding, padding + cornerLength),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
 
-                // Top Right
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(w - padding, padding),
-                    end = Offset(w - padding - cornerLength, padding),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(w - padding, padding),
-                    end = Offset(w - padding, padding + cornerLength),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
+            // Top Right
+            drawLine(
+                color = cornerColor,
+                start = Offset(w - padding, padding),
+                end = Offset(w - padding - cornerLength, padding),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
+            drawLine(
+                color = cornerColor,
+                start = Offset(w - padding, padding),
+                end = Offset(w - padding, padding + cornerLength),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
 
-                // Bottom Left
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(padding, h - padding),
-                    end = Offset(padding + cornerLength, h - padding),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(padding, h - padding),
-                    end = Offset(padding, h - padding - cornerLength),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
+            // Bottom Left
+            drawLine(
+                color = cornerColor,
+                start = Offset(padding, h - padding),
+                end = Offset(padding + cornerLength, h - padding),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
+            drawLine(
+                color = cornerColor,
+                start = Offset(padding, h - padding),
+                end = Offset(padding, h - padding - cornerLength),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
 
-                // Bottom Right
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(w - padding, h - padding),
-                    end = Offset(w - padding - cornerLength, h - padding),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
-                drawLine(
-                    color = NeonCyan,
-                    start = Offset(w - padding, h - padding),
-                    end = Offset(w - padding, h - padding - cornerLength),
-                    strokeWidth = strokeW,
-                    cap = StrokeCap.Round
-                )
+            // Bottom Right
+            drawLine(
+                color = cornerColor,
+                start = Offset(w - padding, h - padding),
+                end = Offset(w - padding - cornerLength, h - padding),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
+            drawLine(
+                color = cornerColor,
+                start = Offset(w - padding, h - padding),
+                end = Offset(w - padding, h - padding - cornerLength),
+                strokeWidth = strokeW,
+                cap = StrokeCap.Round
+            )
 
-                // 3. Draw Moving Scan Line
+            // 4. Draw Animated Face Proportions / Crosshairs
+            val centerX = w / 2
+            val centerY = h / 2
+            val radius = size.minDimension * 0.35f
+            val reticleColor = if (isScanning) NeonBlue else NeonBlue.copy(alpha = 0.3f)
+
+            // Biometric eye scanning indicators
+            drawCircle(
+                color = reticleColor,
+                radius = radius,
+                center = Offset(centerX, centerY),
+                style = Stroke(width = 2f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(15f, 15f)))
+            )
+
+            // Outer fine ring
+            drawCircle(
+                color = reticleColor.copy(alpha = 0.2f),
+                radius = radius + 20f,
+                center = Offset(centerX, centerY),
+                style = Stroke(width = 1f)
+            )
+
+            // Central targeting dot
+            drawCircle(
+                color = if (isScanning) NeonCyan else NeonCyan.copy(alpha = 0.4f),
+                radius = 6f,
+                center = Offset(centerX, centerY)
+            )
+
+            // Draw scanning specific lines
+            if (isScanning) {
+                // Moving Scan Line
                 val scanY = h * scanProgress
                 val scanLineHeight = 30f
 
@@ -178,26 +210,6 @@ fun HolographicScanner(
                     end = Offset(w, scanY),
                     strokeWidth = 4f,
                     cap = StrokeCap.Round
-                )
-
-                // 4. Draw Animated Face Proportions / Crosshairs
-                val centerX = w / 2
-                val centerY = h / 2
-                val radius = size.minDimension * 0.35f
-
-                // Biometric eye scanning indicators
-                drawCircle(
-                    color = NeonBlue.copy(alpha = 0.4f),
-                    radius = radius,
-                    center = Offset(centerX, centerY),
-                    style = Stroke(width = 2f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(15f, 15f)))
-                )
-
-                // Central targeting dot
-                drawCircle(
-                    color = NeonCyan,
-                    radius = 6f,
-                    center = Offset(centerX, centerY)
                 )
             }
         }
