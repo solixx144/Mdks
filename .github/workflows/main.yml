@@ -2,7 +2,7 @@ name: Android CI (APK Üretici)
 
 on:
   push:
-    branches: [ "main" ] # Eğer ana dalın ismi master ise master yazmalısın
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -20,13 +20,14 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      
+      working-directory: './sherlock app' # Klasör ismin buysa burası çalışacak
+
     - name: Build with Gradle
       run: ./gradlew assembleDebug
+      working-directory: './sherlock app'
 
     - name: APK Dosyasını Yükle
       uses: actions/upload-artifact@v4
       with:
         name: SherlockApp-Debug-APK
-        path: app/build/outputs/apk/debug/app-debug.apk
-
+        path: 'sherlock app/app/build/outputs/apk/debug/app-debug.apk'
