@@ -3,10 +3,11 @@ name: Android CI (APK Üretici)
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Depoyu Klonla
@@ -19,11 +20,15 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Eksik Keystore Dosyasını Otomatik Oluştur
+      run: |
+        keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
     - name: Gradlew Dosyasına İzin Ver
       run: chmod +x gradlew
       
-    - name: APK Derlemesini Başlat (İmza ve KSP Korumalı)
-      run: ./gradlew assembleDebug -x validateSigningDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx4g -XX:+UseParallelGC"
+    - name: APK Derlemesini Başlat
+      run: ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx4g -XX:+UseParallelGC"
 
     - name: APK Dosyasını Çıktı Olarak Ver
       uses: actions/upload-artifact@v4
