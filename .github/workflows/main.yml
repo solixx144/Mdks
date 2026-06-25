@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-runs-on: ubuntu-latest
 
     steps:
     - name: Depoyu Klonla
@@ -22,8 +22,8 @@ jobs:
     - name: Gradlew Dosyasına İzin Ver
       run: chmod +x gradlew
       
-    - name: APK Derlemesini Başlat (KSP Yamalı)
-      run: ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx4g -XX:+UseParallelGC"
+    - name: APK Derlemesini Başlat (İmza ve KSP Korumalı)
+      run: ./gradlew assembleDebug -x validateSigningDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx4g -XX:+UseParallelGC"
 
     - name: APK Dosyasını Çıktı Olarak Ver
       uses: actions/upload-artifact@v4
