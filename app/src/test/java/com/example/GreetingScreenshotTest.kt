@@ -21,7 +21,7 @@ class GreetingScreenshotTest {
 
   @Test
   fun greeting_screenshot() {
-    composeTestRule.setContent { MyApplicationTheme { androidx.compose.material3.Text("Sherlock AI Face Search", color = com.example.ui.theme.NeonCyan) } }
+    composeTestRule.setContent { MyApplicationTheme { androidx.compose.material3.Text("Sherlock AI Face Search", color = androidx.compose.material3.MaterialTheme.colorScheme.primary) } }
 
     composeTestRule.onRoot().captureRoboImage(filePath = "src/test/screenshots/greeting.png")
   }

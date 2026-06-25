@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.R
 import com.example.data.api.FaceAnalysisResult
-import com.example.ui.components.HolographicScanner
+import com.example.ui.components.FaceScanner
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.FaceViewModel
 import com.example.ui.viewmodel.ScanUiState
@@ -354,7 +354,7 @@ fun ScanScreen(
                     .clip(RoundedCornerShape(16.dp)),
                 colors = CardDefaults.cardColors(containerColor = CyberDarkSurface)
             ) {
-                HolographicScanner(
+                FaceScanner(
                     isScanning = scanState is ScanUiState.Scanning,
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -590,6 +590,8 @@ fun BiometricRadialGauge(
     score: Int,
     modifier: Modifier = Modifier
 ) {
+    val gridColor = CyberGridColor
+    val progressColor = if (score > 75) CyberGreen else CyberOrange
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -602,7 +604,7 @@ fun BiometricRadialGauge(
 
             // Background arc (dark/track)
             drawArc(
-                color = CyberGridColor,
+                color = gridColor,
                 startAngle = 135f,
                 sweepAngle = 270f,
                 useCenter = false,
@@ -613,7 +615,7 @@ fun BiometricRadialGauge(
 
             // Glowing progress arc
             drawArc(
-                color = if (score > 75) CyberGreen else CyberOrange,
+                color = progressColor,
                 startAngle = 135f,
                 sweepAngle = (score / 100f) * 270f,
                 useCenter = false,
@@ -658,15 +660,17 @@ fun WebMatchGridCard(
         (primarySimilarity - (index + 1) * 6 - (0..3).random()).coerceIn(45, 98)
     }
 
+    val orangeColor = CyberOrange
+    val cyanColor = NeonCyan
     // Assign branding based on the match.title or url
-    val (brandColor, brandName, brandBg) = remember(match.title) {
+    val (brandColor, brandName, brandBg) = remember(match.title, orangeColor, cyanColor) {
         val titleLower = match.title.lowercase()
         when {
             titleLower.contains("linkedin") -> Triple(Color(0xFF0077B5), "LINKEDIN", Color(0xFF0077B5).copy(alpha = 0.15f))
             titleLower.contains("twitter") || titleLower.contains("x.com") || titleLower.contains("x social") -> Triple(Color(0xFF1DA1F2), "X.COM", Color(0xFF1DA1F2).copy(alpha = 0.15f))
-            titleLower.contains("portfolio") || titleLower.contains("unsplash") -> Triple(CyberOrange, "PORTFOLIO", CyberOrange.copy(alpha = 0.15f))
+            titleLower.contains("portfolio") || titleLower.contains("unsplash") -> Triple(orangeColor, "PORTFOLIO", orangeColor.copy(alpha = 0.15f))
             titleLower.contains("github") -> Triple(Color(0xFF24292E), "GITHUB", Color(0xFF24292F).copy(alpha = 0.15f))
-            else -> Triple(NeonCyan, "REGISTRY", NeonCyan.copy(alpha = 0.15f))
+            else -> Triple(cyanColor, "REGISTRY", cyanColor.copy(alpha = 0.15f))
         }
     }
 

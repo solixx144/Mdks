@@ -32,6 +32,15 @@ class FaceViewModel(
     private val repository: FaceRepository
 ) : AndroidViewModel(application) {
 
+    // Theme Preference (null means follow system)
+    private val _isDarkTheme = MutableStateFlow<Boolean?>(null)
+    val isDarkTheme = _isDarkTheme.asStateFlow()
+
+    fun toggleTheme(systemDark: Boolean) {
+        val current = _isDarkTheme.value ?: systemDark
+        _isDarkTheme.value = !current
+    }
+
     // Tab Navigation
     private val _currentTab = MutableStateFlow(Tab.SCAN)
     val currentTab = _currentTab.asStateFlow()

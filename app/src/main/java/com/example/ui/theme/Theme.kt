@@ -10,29 +10,51 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val CyberDarkColorScheme = darkColorScheme(
-    primary = NeonCyan,
-    onPrimary = CyberBlack,
-    secondary = NeonBlue,
-    onSecondary = CyberBlack,
-    tertiary = CyberOrange,
-    background = CyberBlack,
-    onBackground = CyberTextPrimary,
-    surface = CyberDarkSurface,
-    onSurface = CyberTextPrimary,
-    surfaceVariant = CyberCardBg,
-    onSurfaceVariant = CyberTextPrimary
+private val ProfessionalDarkColorScheme = darkColorScheme(
+    primary = DarkPrimary,
+    onPrimary = DarkBackground,
+    secondary = DarkSecondary,
+    onSecondary = DarkBackground,
+    tertiary = DarkTertiary,
+    background = DarkBackground,
+    onBackground = DarkOnBackground,
+    surface = DarkSurface,
+    onSurface = DarkOnBackground,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkOnBackground
+)
+
+private val ProfessionalLightColorScheme = lightColorScheme(
+    primary = LightPrimary,
+    onPrimary = LightOnPrimary,
+    secondary = LightSecondary,
+    onSecondary = LightOnSecondary,
+    tertiary = LightTertiary,
+    background = LightBackground,
+    onBackground = LightOnBackground,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    surfaceVariant = LightSurfaceVariant,
+    onSurfaceVariant = LightOnSurfaceVariant
 )
 
 @Composable
 fun MyApplicationTheme(
-    darkTheme: Boolean = true, // Force dark theme for the cyber holographic aesthetic
-    dynamicColor: Boolean = false, // Disable dynamic theme to enforce the high-tech green/cyan/blue grid appearance
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    // We enforce our premium cyber holographic dark theme for the immersive experience
+    val context = LocalContext.current
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> ProfessionalDarkColorScheme
+        else -> ProfessionalLightColorScheme
+    }
+
     MaterialTheme(
-        colorScheme = CyberDarkColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

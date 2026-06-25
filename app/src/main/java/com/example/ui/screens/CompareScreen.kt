@@ -1114,6 +1114,8 @@ fun CompareRadialGauge(
     score: Int,
     modifier: Modifier = Modifier
 ) {
+    val gridColor = CyberGridColor
+    val progressColor = if (score > 75) CyberGreen else CyberOrange
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -1126,7 +1128,7 @@ fun CompareRadialGauge(
 
             // Background arc (dark/track)
             drawArc(
-                color = CyberGridColor,
+                color = gridColor,
                 startAngle = 135f,
                 sweepAngle = 270f,
                 useCenter = false,
@@ -1137,7 +1139,7 @@ fun CompareRadialGauge(
 
             // Glowing progress arc
             drawArc(
-                color = if (score > 75) CyberGreen else CyberOrange,
+                color = progressColor,
                 startAngle = 135f,
                 sweepAngle = (score / 100f) * 270f,
                 useCenter = false,

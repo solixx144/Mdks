@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,13 +19,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import com.example.ui.theme.NeonCyan
-import com.example.ui.theme.NeonBlue
 
 @Composable
-fun HolographicScanner(
+fun FaceScanner(
     isScanning: Boolean,
     modifier: Modifier = Modifier,
+    primaryColor: Color = MaterialTheme.colorScheme.primary,
+    secondaryColor: Color = MaterialTheme.colorScheme.secondary,
     content: @Composable () -> Unit
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "scanner")
@@ -69,7 +70,7 @@ fun HolographicScanner(
             for (i in 1 until gridRows) {
                 val y = i * rowStep
                 drawLine(
-                    color = NeonCyan.copy(alpha = gridAlpha),
+                    color = primaryColor.copy(alpha = gridAlpha),
                     start = Offset(0f, y),
                     end = Offset(w, y),
                     strokeWidth = 1f
@@ -78,7 +79,7 @@ fun HolographicScanner(
             for (j in 1 until gridCols) {
                 val x = j * colStep
                 drawLine(
-                    color = NeonCyan.copy(alpha = gridAlpha),
+                    color = primaryColor.copy(alpha = gridAlpha),
                     start = Offset(x, 0f),
                     end = Offset(x, h),
                     strokeWidth = 1f
@@ -89,7 +90,7 @@ fun HolographicScanner(
             val cornerLength = size.minDimension * 0.15f
             val strokeW = 6f
             val padding = 15f
-            val cornerColor = if (isScanning) NeonCyan else NeonCyan.copy(alpha = 0.5f)
+            val cornerColor = if (isScanning) primaryColor else primaryColor.copy(alpha = 0.5f)
 
             // Top Left
             drawLine(
@@ -159,7 +160,7 @@ fun HolographicScanner(
             val centerX = w / 2
             val centerY = h / 2
             val radius = size.minDimension * 0.35f
-            val reticleColor = if (isScanning) NeonBlue else NeonBlue.copy(alpha = 0.3f)
+            val reticleColor = if (isScanning) secondaryColor else secondaryColor.copy(alpha = 0.3f)
 
             // Biometric eye scanning indicators
             drawCircle(
@@ -179,7 +180,7 @@ fun HolographicScanner(
 
             // Central targeting dot
             drawCircle(
-                color = if (isScanning) NeonCyan else NeonCyan.copy(alpha = 0.4f),
+                color = if (isScanning) primaryColor else primaryColor.copy(alpha = 0.4f),
                 radius = 6f,
                 center = Offset(centerX, centerY)
             )
@@ -195,7 +196,7 @@ fun HolographicScanner(
                     brush = Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            NeonCyan.copy(alpha = 0.5f),
+                            primaryColor.copy(alpha = 0.5f),
                             Color.Transparent
                         )
                     ),
@@ -205,7 +206,7 @@ fun HolographicScanner(
 
                 // Solid laser core line
                 drawLine(
-                    color = NeonCyan,
+                    color = primaryColor,
                     start = Offset(0f, scanY),
                     end = Offset(w, scanY),
                     strokeWidth = 4f,
